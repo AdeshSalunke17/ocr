@@ -165,7 +165,7 @@ function App() {
                   </p>
                   <p>Or</p> */}
                   <button
-                    className="bg-linear-to-r from-[#ff80b5] to-[#9089fc] opacity-80 hover:opacity-100 text-white px-6 py-3 rounded-lg shadow-lg mt-4 sm:text-lg text-[0.675rem]"
+                    className="bg-linear-to-r from-[#ff80b5] to-[#9089fc] opacity-80 hover:opacity-100 text-white px-6 py-3 rounded-lg shadow-lg sm:text-lg text-[0.675rem]"
                     onClick={() => {
                       if (document) {
                         document?.getElementById("image-input")?.click();
@@ -214,7 +214,7 @@ function App() {
               </>
             )}
 
-            <p className="text-sm text-gray-500 absolute bottom-4 left-2">
+            <p className="sm:pt-0 pt-2 sm:text-sm text-[8px] text-gray-500 absolute sm:bottom-4 bottom-2 left-2">
               Formats accepted are: PDF, JPG, PNG
             </p>
           </div>
