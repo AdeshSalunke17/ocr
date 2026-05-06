@@ -4,15 +4,19 @@ import { createWorker } from "tesseract.js";
 import ResultModal from './components/ResultModal';
 import { toast } from 'react-toastify';
 import Loader from './components/Loader';
-// import { XMarkIcon } from "@heroicons/react/20/solid";
+import * as pdfjsLib from "pdfjs-dist";
+import pdfWorker from "pdfjs-dist/build/pdf.worker?url";
 
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+const FIXED_WIDTH = 400;
 function App() {
+  const [selectedDocumentType, setSelectedDocumentType] = useState<string>("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [extractedText, setExtractedText] = useState<string | null>(null);
   const [isPending, setIsPending] = useState<boolean>(false);
 
-  const handleFileChange = (event : React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event : React.ChangeEvent<HTMLInputElement>) => {
     const file = event?.target?.files?.[0];
     if (file) {
       // if (file.type !== "image/jpeg") {
@@ -20,38 +24,66 @@ function App() {
       //   return;
       // }
       const url = URL.createObjectURL(file);
-      console.log("Selected image URL:", url);
-      (async () => {
-        
-      })();
-      setImagePreview(URL.createObjectURL(file));
+      setSelectedDocumentType(file.type);
+      if (file.type === "application/pdf") {
+        // creating image preview for pdf file
+        const loadingTask = pdfjsLib.getDocument(url);
+        const pdf = await loadingTask.promise;
+        const page = await pdf.getPage(1);
+        const canvas: any = document.getElementById("the-canvas");
+        const context = canvas?.getContext("2d");
+        const viewport = page.getViewport({ scale: 1 });
+        const scale = FIXED_WIDTH / viewport.width;
+        const scaledViewport = page.getViewport({ scale });
+        canvas.height = scaledViewport.height;
+        canvas.width = scaledViewport.width;
+        var renderContext = {
+          canvasContext: context,
+          viewport: scaledViewport,
+          canvas: canvas,
+        };
+        var renderTask = page.render(renderContext);
+        await renderTask.promise;
+      } else if (file.type.startsWith("image/")) {
+        setImagePreview(URL.createObjectURL(file));
+      }
     }
   };
 
   const excractText = async () => {
-    if (!imagePreview) {
-      toast.error("Please select an image first.");
+    if (selectedDocumentType.length === 0) {
+      toast.error("Please select a document first.");
       return;
     }
-    setIsPending(true);
+    try {
+      setIsPending(true);
       const worker = await createWorker("eng");
-      const ret = await worker.recognize(imagePreview!);
+      let url : string = '';
+      let ret: Tesseract.RecognizeResult;
+      if (selectedDocumentType === "application/pdf") {
+        url = (document?.getElementById("the-canvas") as HTMLCanvasElement)?.toDataURL("image/png")!;
+      } else if (selectedDocumentType.startsWith("image/")) {
+        url = imagePreview!;
+      }
+      ret = await worker.recognize(url!);
       setExtractedText(ret.data.text);
       setOpen(true);
       // console.log(ret.data.text);
       await worker.terminate();
       setIsPending(false);
+    } catch (error) {
+      setIsPending(false);
+      toast.error("An error occurred while extracting text. Please try again.");
+    }
   }
 
-  if (isPending) {
-    return (
-      <div className="w-full h-screen flex items-center justify-center bg-black">
-        <Loader />
-      </div>
-    );
-  }
   return (
     <>
+      {isPending && (
+        <div className="w-full h-screen flex items-center justify-center bg-black z-50">
+          <Loader />
+        </div>
+      )}
       <h1 className="sm:text-3xl text-xl font-bold">
         Optical Character Recognition
       </h1>
@@ -117,6 +149,10 @@ function App() {
                     className="max-w-full max-h-80 rounded-lg"
                   />
                 </div>
+              ) : selectedDocumentType === "application/pdf" ? (
+                <div className="relative">
+                  <canvas id="the-canvas"></canvas>
+                </div>
               ) : (
                 <>
                   {/* <i className="fa fa-download text-green-500 text-3xl"></i>
@@ -139,8 +175,7 @@ function App() {
                   <input
                     id="image-input"
                     type="file"
-                    accept="image/*"
-                    // accept="application/pdf"
+                    accept="application/pdf,image/*"
                     onChange={handleFileChange}
                     className="hidden"
                   />
@@ -164,6 +199,7 @@ function App() {
           onClick={() => {
             setImagePreview(null);
             setExtractedText(null);
+            setSelectedDocumentType("");
           }}
         >
           Reset <span aria-hidden="true">&rarr;</span>
