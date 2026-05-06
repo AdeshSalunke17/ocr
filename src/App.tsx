@@ -8,9 +8,29 @@ import * as pdfjsLib from "pdfjs-dist";
 import pdfWorker from "pdfjs-dist/build/pdf.worker?url";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
-const FIXED_WIDTH = 400;
+const width = window.innerWidth || document.documentElement.clientWidth;
+const FIXED_WIDTH = width < 600 ? 200 : 400;
+const renderCanvas = async (pdf : pdfjsLib.PDFDocumentProxy, pageNumber : number) => {
+  const page = await pdf.getPage(pageNumber);
+  const canvas: any = document.getElementById("the-canvas");
+  const context = canvas?.getContext("2d");
+  const viewport = page.getViewport({ scale: 1 });
+  const scale = FIXED_WIDTH / viewport.width;
+  const scaledViewport = page.getViewport({ scale });
+  canvas.height = scaledViewport.height;
+  canvas.width = scaledViewport.width;
+  var renderContext = {
+    canvasContext: context,
+    viewport: scaledViewport,
+    canvas: canvas,
+  };
+  const renderTask = page.render(renderContext);
+  await renderTask.promise;
+ }
 function App() {
   const [selectedDocumentType, setSelectedDocumentType] = useState<string>("");
+  const [pdf, setPdf] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [extractedText, setExtractedText] = useState<string | null>(null);
@@ -19,31 +39,14 @@ function App() {
   const handleFileChange = async (event : React.ChangeEvent<HTMLInputElement>) => {
     const file = event?.target?.files?.[0];
     if (file) {
-      // if (file.type !== "image/jpeg") {
-      //   alert("Only JPG images are allowed. Please select a valid file.");
-      //   return;
-      // }
       const url = URL.createObjectURL(file);
       setSelectedDocumentType(file.type);
       if (file.type === "application/pdf") {
         // creating image preview for pdf file
         const loadingTask = pdfjsLib.getDocument(url);
         const pdf = await loadingTask.promise;
-        const page = await pdf.getPage(1);
-        const canvas: any = document.getElementById("the-canvas");
-        const context = canvas?.getContext("2d");
-        const viewport = page.getViewport({ scale: 1 });
-        const scale = FIXED_WIDTH / viewport.width;
-        const scaledViewport = page.getViewport({ scale });
-        canvas.height = scaledViewport.height;
-        canvas.width = scaledViewport.width;
-        var renderContext = {
-          canvasContext: context,
-          viewport: scaledViewport,
-          canvas: canvas,
-        };
-        var renderTask = page.render(renderContext);
-        await renderTask.promise;
+        setPdf(pdf);
+        renderCanvas(pdf, 1);
       } else if (file.type.startsWith("image/")) {
         setImagePreview(URL.createObjectURL(file));
       }
@@ -135,11 +138,11 @@ function App() {
           </button>
         </div>
       </div>
-      <div className="w-full p-10 flex items-center justify-center">
+      <div className="w-full sm:p-10 p-5 flex items-center justify-center">
         <div
           className={`bg-black bg-opacity-70 rounded-lg sm:w-2/3 w-10/12 sm:p-10 p-3 `}
         >
-          <div className="py-10 w-full h-full border-2 border-dashed border-gray-100 rounded-lg flex flex-col items-center justify-center text-center">
+          <div className="relative py-10 w-full h-full border-2 border-dashed border-gray-100 rounded-lg flex flex-col items-center justify-center text-center">
             <div className="cursor-pointer">
               {imagePreview ? (
                 <div className="relative">
@@ -157,10 +160,10 @@ function App() {
                 <>
                   {/* <i className="fa fa-download text-green-500 text-3xl"></i>
                    */}
-                  <p className="sm:text-2xl text-lg text-gray-400 my-4">
+                  {/* <p className="sm:text-2xl text-lg text-gray-400 my-4">
                     Drag&Drop Document here
                   </p>
-                  <p>Or</p>
+                  <p>Or</p> */}
                   <button
                     className="bg-linear-to-r from-[#ff80b5] to-[#9089fc] opacity-80 hover:opacity-100 text-white px-6 py-3 rounded-lg shadow-lg mt-4 sm:text-lg text-[0.675rem]"
                     onClick={() => {
@@ -182,6 +185,38 @@ function App() {
                 </>
               )}
             </div>
+            {selectedDocumentType === "application/pdf" && pdf && pdf.numPages > 1 && (
+              <>
+                <button
+                  className="absolute left-2 sm:left-30 text-2xl text-white"
+                  onClick={() => {
+                    if (currentPage <= 1 || !pdf) {
+                      return;
+                    }
+                    setCurrentPage((prev) => prev - 1);
+                    renderCanvas(pdf!, currentPage - 1);
+                  }}
+                >
+                  {`<`}
+                </button>
+                <button
+                  className="absolute right-2 sm:right-30 text-2xl text-white"
+                  onClick={() => {
+                    if (pdf && currentPage >= pdf.numPages) {
+                      return;
+                    }
+                    setCurrentPage((prev) => prev + 1);
+                    renderCanvas(pdf!, currentPage + 1);
+                  }}
+                >
+                  {`>`}
+                </button>
+              </>
+            )}
+
+            <p className="text-sm text-gray-500 absolute bottom-4 left-2">
+              Formats accepted are: PDF, JPG, PNG
+            </p>
           </div>
         </div>
       </div>
