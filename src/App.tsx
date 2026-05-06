@@ -1,15 +1,16 @@
-import { useState, useTransition } from 'react'
+import { useState } from 'react'
 import './App.css'
 import { createWorker } from "tesseract.js";
 import ResultModal from './components/ResultModal';
 import { toast } from 'react-toastify';
+import Loader from './components/Loader';
 // import { XMarkIcon } from "@heroicons/react/20/solid";
 
 function App() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [extractedText, setExtractedText] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState<boolean>(false);
 
   const handleFileChange = (event : React.ChangeEvent<HTMLInputElement>) => {
     const file = event?.target?.files?.[0];
@@ -32,36 +33,24 @@ function App() {
       toast.error("Please select an image first.");
       return;
     }
-    const worker = await createWorker("eng");
-    const ret = await worker.recognize(imagePreview!);
-    startTransition(() => {
+    setIsPending(true);
+      const worker = await createWorker("eng");
+      const ret = await worker.recognize(imagePreview!);
       setExtractedText(ret.data.text);
       setOpen(true);
-    })
-    console.log(ret.data.text);
-    await worker.terminate();
+      // console.log(ret.data.text);
+      await worker.terminate();
+      setIsPending(false);
+  }
+
+  if (isPending) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center bg-black">
+        <Loader />
+      </div>
+    );
   }
   return (
-    // <>
-    //   <button
-    //     className="choose-image-button"
-    //     onClick={() => {
-    //       if (document) {
-    //         document?.getElementById('image-input')?.click()
-    //       }
-    //     }}
-    //   >
-    //     Choose Image
-    //   </button>
-    //   <input
-    //     id="image-input"
-    //     type="file"
-    //     // accept="image/*"
-    //     accept="application/pdf"
-    //     onChange={handleFileChange}
-    //     style={{ display: 'none' }}
-    //   />
-    // </>
     <>
       <h1 className="sm:text-3xl text-xl font-bold">
         Optical Character Recognition

@@ -1,9 +1,7 @@
-import React from 'react'
 import {
   Dialog,
   DialogBackdrop,
-  DialogPanel,
-  DialogTitle,
+  DialogPanel
 } from "@headlessui/react";
 
 interface ResultModalProps {
