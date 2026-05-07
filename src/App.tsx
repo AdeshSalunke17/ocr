@@ -200,34 +200,36 @@ function App() {
                 </>
               )}
             </div>
-            {selectedDocumentType === "application/pdf" && pdf && pdf.numPages > 1 && (
-              <>
-                <button
-                  className="absolute left-2 sm:left-30 text-2xl text-white"
-                  onClick={() => {
-                    if (currentPage <= 1 || !pdf) {
-                      return;
-                    }
-                    setCurrentPage((prev) => prev - 1);
-                    renderCanvas(pdf!, currentPage - 1);
-                  }}
-                >
-                  {`<`}
-                </button>
-                <button
-                  className="absolute right-2 sm:right-30 text-2xl text-white"
-                  onClick={() => {
-                    if (pdf && currentPage >= pdf.numPages) {
-                      return;
-                    }
-                    setCurrentPage((prev) => prev + 1);
-                    renderCanvas(pdf!, currentPage + 1);
-                  }}
-                >
-                  {`>`}
-                </button>
-              </>
-            )}
+            {selectedDocumentType === "application/pdf" &&
+              pdf &&
+              pdf.numPages > 1 && (
+                <>
+                  <button
+                    className="absolute left-2 sm:left-30 text-2xl text-white"
+                    onClick={() => {
+                      if (currentPage <= 1 || !pdf) {
+                        return;
+                      }
+                      setCurrentPage((prev) => prev - 1);
+                      renderCanvas(pdf!, currentPage - 1);
+                    }}
+                  >
+                    {`<`}
+                  </button>
+                  <button
+                    className="absolute right-2 sm:right-30 text-2xl text-white"
+                    onClick={() => {
+                      if (pdf && currentPage >= pdf.numPages) {
+                        return;
+                      }
+                      setCurrentPage((prev) => prev + 1);
+                      renderCanvas(pdf!, currentPage + 1);
+                    }}
+                  >
+                    {`>`}
+                  </button>
+                </>
+              )}
 
             <p className="sm:pt-0 pt-2 sm:text-sm text-[8px] text-gray-500 absolute sm:bottom-4 bottom-2 left-2">
               Formats accepted are: PDF, JPG, PNG
