@@ -26,6 +26,20 @@ const renderCanvas = async (pdf : pdfjsLib.PDFDocumentProxy, pageNumber : number
   };
   const renderTask = page.render(renderContext);
   await renderTask.promise;
+
+  // hidden canvas to render pdf in high quality for better text extraction
+  const hiddenCanvas: any = document.getElementById("hidden-canvas");
+  const hiddenContext = hiddenCanvas?.getContext("2d");
+  const hiddenViewport = page.getViewport({ scale: 3 });
+  hiddenCanvas.height = hiddenViewport.height;
+  hiddenCanvas.width = hiddenViewport.width;
+  var hiddenRenderContext = {
+    canvasContext: hiddenContext,
+    viewport: hiddenViewport,
+    canvas: hiddenCanvas,
+  };
+  const hiddenRenderTask = page.render(hiddenRenderContext);
+  await hiddenRenderTask.promise;
  }
 function App() {
   const [selectedDocumentType, setSelectedDocumentType] = useState<string>("");
@@ -64,7 +78,7 @@ function App() {
       let url : string = '';
       let ret: Tesseract.RecognizeResult;
       if (selectedDocumentType === "application/pdf") {
-        url = (document?.getElementById("the-canvas") as HTMLCanvasElement)?.toDataURL("image/png")!;
+        url = (document?.getElementById("hidden-canvas") as HTMLCanvasElement)?.toDataURL("image/png")!;
       } else if (selectedDocumentType.startsWith("image/")) {
         url = imagePreview!;
       }
@@ -155,6 +169,7 @@ function App() {
               ) : selectedDocumentType === "application/pdf" ? (
                 <div className="relative">
                   <canvas id="the-canvas"></canvas>
+                  <canvas id="hidden-canvas" className="hidden"></canvas>
                 </div>
               ) : (
                 <>
