@@ -1,73 +1,151 @@
-# React + TypeScript + Vite
+# OCR Text Extractor
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern OCR (Optical Character Recognition) web application built with React, TypeScript, and Vite that allows users to extract text from images and PDF files directly in the browser.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 Features
 
-## React Compiler
+- 📄 Extract text from PDF files
+- 🖼️ Extract text from images (`jpg`, `jpeg`, `png`)
+- ⚡ Fast client-side OCR processing using Tesseract.js
+- 👀 PDF preview support with PDF.js
+- 📋 Copy extracted text instantly
+- 🔔 Toast notifications for better user experience
+- 🎨 Responsive modern UI with Tailwind CSS & Styled Components
+- ⚛️ Built with React 19 + TypeScript
+- ⚡ Super fast development using Vite
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🛠️ Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Frontend
+- React 19
+- TypeScript
+- Vite
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### OCR & PDF Processing
+- Tesseract.js
+- PDF.js (`pdfjs-dist`)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Styling
+- Tailwind CSS v4
+- Styled Components
+- Headless UI
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Utilities
+- React Toastify
+- ESLint
+
+---
+
+## 📦 Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/AdeshSalunke17/ocr.git
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Move into the project folder:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd ocr
 ```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+---
+
+## ▶️ Run Development Server
+
+```bash
+npm run dev
+```
+
+The application will start on:
+
+```bash
+http://localhost:5173
+```
+
+---
+
+## 🏗️ Build for Production
+
+```bash
+npm run build
+```
+
+---
+
+## 🔍 Preview Production Build
+
+```bash
+npm run preview
+```
+
+---
+
+## 🧹 Run ESLint
+
+```bash
+npm run lint
+```
+
+---
+
+## 📂 Supported File Types
+
+### Images
+- JPG
+- JPEG
+- PNG
+
+### Documents
+- PDF
+
+---
+
+## ⚙️ Main Dependencies
+
+| Package | Purpose |
+|---|---|
+| `tesseract.js` | OCR text extraction |
+| `pdfjs-dist` | PDF rendering & preview |
+| `react-toastify` | Toast notifications |
+| `tailwindcss` | Utility-first styling |
+| `styled-components` | Component-based styling |
+| `@headlessui/react` | Accessible UI components |
+
+---
+
+## 📸 Application Workflow
+
+1. Upload an image or PDF file
+2. Preview the selected file
+3. Start OCR processing
+4. Extracted text appears on screen
+5. Copy the extracted text easily
+
+---
+
+## 🌟 Future Improvements
+
+- Multi-language OCR support
+- Download extracted text as TXT/PDF
+- Drag & drop upload
+- AI-based text formatting
+
+---
+
+## 👨‍💻 Author
+
+Developed by Adesh Salunke
+
+---
